@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sala do Empreendedor - São José do Belmonte</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chosen Palette: Professional Business Blue -->
+    <!-- Application Structure Plan: A side-navigation SPA, maintaining the successful structure of previous reports. The left sidebar lists logical categories for entrepreneurial services (Formalization, Management, Growth, etc.). The main content area features a search bar and interactive accordion cards for each service. This master-detail structure is highly effective for guiding entrepreneurs, allowing them to easily browse categories and drill down into specific procedures without getting lost in a long document. -->
+    <!-- Visualization & Content Choices: Report Info: Entrepreneurial Services Text -> Goal: Guide User -> Presentation: Interactive list/card system -> Interaction: Category filtering via sidebar, text search, accordion-style detail expansion -> Justification: The source material is entirely procedural. Traditional data visualizations like charts are not applicable. The interactive card system transforms the static text into a user-friendly, task-oriented tool, helping entrepreneurs quickly find the requirements and steps for managing their business. Unicode icons are used to visually break up text, improving scannability. -> Library/Method: Vanilla JS for DOM manipulation, TailwindCSS for layout. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        :root {
+            --bg-main: #f8f7f4;
+            --bg-sidebar: #e9e7e2;
+            --text-dark: #3a3a3a;
+            --text-light: #5a5a5a;
+            --accent: #2563eb; /* Professional Business Blue */
+            --border-color: #d1d5db;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-main);
+            color: var(--text-dark);
+        }
+        .sidebar-item.active {
+            background-color: var(--accent);
+            color: white;
+            font-weight: 600;
+        }
+        .service-card-header {
+            cursor: pointer;
+            transition: background-color 0.2s ease-in-out;
+        }
+        .service-card-header:hover {
+            background-color: #f0f0f0;
+        }
+        .service-card-details {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.5s ease-in-out, padding 0.5s ease-in-out;
+        }
+        .service-card-details.open {
+            max-height: 1500px;
+            padding-top: 1rem;
+            padding-bottom: 1rem;
+        }
+        .icon {
+            font-size: 1.25rem;
+            margin-right: 0.75rem;
+            color: var(--accent);
+        }
+    </style>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body class="antialiased">
+
+    <div id="app" class="flex flex-col md:flex-row min-h-screen">
+        
+        <aside id="sidebar" class="w-full md:w-64 lg:w-72 bg-[var(--bg-sidebar)] p-4 md:p-6 flex-shrink-0">
+            <h1 class="text-xl font-bold text-gray-800 mb-6">Sala do Empreendedor</h1>
+            <nav id="category-nav">
+                <ul class="space-y-2">
+                    <li><button data-category="Todos" class="sidebar-item w-full text-left p-3 rounded-lg font-medium text-[var(--text-light)] transition-colors duration-200 hover:bg-gray-300 active">Todos os Serviços</button></li>
+                </ul>
+            </nav>
+        </aside>
+
+        <main class="flex-1 p-4 md:p-8 lg:p-10">
+            <header class="mb-8">
+                <h2 class="text-2xl md:text-3xl font-bold text-[var(--text-dark)]">Catálogo de Serviços ao Empreendedor</h2>
+                <p class="text-md text-[var(--text-light)] mt-1">Encontre orientações para abrir, gerenciar e fazer seu negócio crescer.</p>
+                <div class="mt-6">
+                    <input type="text" id="search-input" placeholder="🔎 Pesquisar por serviço..." class="w-full max-w-lg p-3 border border-[var(--border-color)] rounded-lg focus:ring-2 focus:ring-[var(--accent)] focus:outline-none transition-shadow">
+                </div>
+            </header>
+            
+            <div id="services-container" class="space-y-4">
+                
+            </div>
+        </main>
+    </div>
+
+    <script>
+        const servicesData = [
+            {
+                "category": "Formalização e Orientações Iniciais",
+                "title": "Solicitar orientação ao microempreendedor individual (MEI)",
+                "description": "Oferece suporte e informações ao cidadão que deseja se formalizar como Microempreendedor Individual (MEI) ou que já é MEI e tem dúvidas. O serviço esclarece quais são as etapas, os benefícios, as obrigações e os processos necessários para abrir e manter a empresa.",
+                "documents": ["CPF", "RG", "Comprovante de residência"],
+                "requirements": ["Ser morador do município", "Ter interesse em abrir ou já possuir um MEI"],
+                "procedure": [
+                    "Comparecer à Sala do Empreendedor ou Secretaria de Desenvolvimento Econômico.",
+                    "Apresentar os documentos solicitados.",
+                    "Informar o tipo de orientação desejada (formalização, alteração de dados, dúvidas sobre obrigações, etc).",
+                    "Receber o atendimento e as orientações necessárias."
+                ]
+            },
+            {
+                "category": "Formalização e Orientações Iniciais",
+                "title": "Solicitar abertura de CNPJ para MEI",
+                "description": "Este serviço auxilia o cidadão a realizar seu registro como Microempreendedor Individual (MEI), obtendo um CNPJ de forma simplificada e sem custos.",
+                "documents": ["CPF", "Documento de identidade (RG ou CNH)", "Comprovante de endereço"],
+                "requirements": ["Ser residente no município", "Atender às condições para se tornar MEI (faturamento anual dentro do limite, exercer atividade permitida, não ser sócio de outra empresa)"],
+                "procedure": [
+                    "Comparecer à Sala do Empreendedor ou Secretaria de Desenvolvimento Econômico.",
+                    "Apresentar os documentos solicitados.",
+                    "Preencher o formulário de solicitação de abertura de MEI/CNPJ.",
+                    "Receber a confirmação e o número do CNPJ do MEI.",
+                    "Receber orientação sobre os próximos passos, se necessário."
+                ]
+            },
+            {
+                "category": "Gestão e Obrigações do MEI",
+                "title": "Solicitar Declaração Anual (DASN-SIMEI)",
+                "description": "Todo MEI tem o compromisso de entregar a Declaração Anual do Simples Nacional (DASN-SIMEI). Este documento é obrigatório para comprovar a receita bruta do seu empreendimento no ano anterior e garantir seus benefícios.",
+                "documents": ["CPF", "RG", "CNPJ do MEI", "Informações sobre o faturamento anual"],
+                "requirements": ["Ser Microempreendedor Individual (MEI) registrado", "Estar com os dados do negócio atualizados"],
+                "procedure": [
+                    "Comparecer à Sala do Empreendedor ou Secretaria de Desenvolvimento Econômico.",
+                    "Apresentar os documentos e informar o ano-base da declaração.",
+                    "Receber apoio para o preenchimento e envio da Declaração Anual.",
+                    "Confirmar o envio e guardar o comprovante de entrega."
+                ]
+            },
+            {
+                "category": "Gestão e Obrigações do MEI",
+                "title": "Solicitar emissão de carnê e realizar pagamentos (DAS)",
+                "description": "Orienta e auxilia o MEI a gerar e pagar o Documento de Arrecadação do Simples Nacional (DAS). O DAS é a guia mensal que unifica os impostos e garante o acesso a benefícios como aposentadoria e auxílio-doença.",
+                "documents": ["CPF", "RG", "CNPJ do MEI"],
+                "requirements": ["Ser Microempreendedor Individual (MEI) ativo", "Estar com os dados cadastrais atualizados no Portal do Empreendedor"],
+                "procedure": [
+                    "Comparecer à Sala do Empreendedor ou Secretaria de Desenvolvimento Econômico.",
+                    "Apresentar os documentos solicitados.",
+                    "Solicitar a emissão do carnê DAS ou a geração das guias mensais.",
+                    "Receber orientação sobre formas de pagamento e prazos.",
+                    "Efetuar o pagamento e guardar o comprovante."
+                ]
+            },
+            {
+                "category": "Gestão e Obrigações do MEI",
+                "title": "Solicitar alteração de dados cadastrais do MEI",
+                "description": "Permite que o MEI atualize as informações de sua empresa, como endereço, telefone, nome fantasia, ou inclua e exclua atividades econômicas (CNAEs). Manter os dados atualizados é uma obrigação legal.",
+                "documents": ["CPF", "RG", "CNPJ do MEI", "Comprovante de residência atualizado"],
+                "requirements": ["Ser Microempreendedor Individual (MEI) ativo", "Estar com o cadastro regular no Portal do Empreendedor"],
+                "procedure": [
+                    "Comparecer à Sala do Empreendedor ou Secretaria de Desenvolvimento Econômico.",
+                    "Apresentar os documentos solicitados.",
+                    "Informar as alterações desejadas.",
+                    "Receber apoio para realizar a atualização cadastral.",
+                    "Conferir e guardar o comprovante da alteração."
+                ]
+            },
+            {
+                "category": "Crescimento e Capacitação",
+                "title": "Solicitar orientação para acesso ao microcrédito",
+                "description": "Oferece informações e direcionamento para o MEI que busca opções de crédito e financiamento para investir em seu negócio. O serviço conecta o empreendedor a programas de microcrédito, bancos e agências de fomento parceiras.",
+                "documents": ["CPF", "RG", "CNPJ do MEI", "Comprovante de residência"],
+                "requirements": ["Ser Microempreendedor Individual (MEI) ativo", "Ter interesse em obter crédito para investimento no negócio"],
+                "procedure": [
+                    "Comparecer à Sala do Empreendedor ou Secretaria de Desenvolvimento Econômico.",
+                    "Apresentar os documentos solicitados.",
+                    "Informar o tipo de investimento ou necessidade de crédito.",
+                    "Receber orientação sobre as opções de microcrédito disponíveis.",
+                    "Ser direcionado para a instituição financeira ou programa parceiro."
+                ]
+            },
+            {
+                "category": "Crescimento e Capacitação",
+                "title": "Solicitar consultoria empresarial para MEI",
+                "description": "Oferece ao MEI um atendimento personalizado com um especialista para analisar seu negócio, identificar problemas e sugerir melhorias em áreas como finanças, marketing, planejamento ou gestão.",
+                "documents": ["CPF", "CNPJ do MEI (se já tiver)", "Documento de identidade (RG ou CNH)"],
+                "requirements": ["Ser Microempreendedor Individual (MEI)", "Residir ou ter empresa no município"],
+                "procedure": [
+                    "Comparecer à Sala do Empreendedor ou Secretaria de Desenvolvimento Econômico.",
+                    "Apresentar os documentos solicitados.",
+                    "Solicitar o agendamento da consultoria empresarial.",
+                    "Receber orientação sobre os serviços e acompanhamento disponíveis.",
+                    "Participar da consultoria na data agendada."
+                ]
+            },
+            {
+                "category": "Crescimento e Capacitação",
+                "title": "Agendar participação em cursos para empreendedores",
+                "description": "Oferece a oportunidade para que MEIs e outros empreendedores se inscrevam em cursos de capacitação em temas como gestão financeira, marketing digital, vendas, formalização, entre outros.",
+                "documents": ["CPF", "RG"],
+                "requirements": ["Ser morador do município", "Ter interesse em participar de capacitações voltadas ao empreendedorismo"],
+                "procedure": [
+                    "Comparecer à Sala do Empreendedor ou Secretaria de Desenvolvimento Econômico.",
+                    "Apresentar os documentos solicitados.",
+                    "Informar o curso desejado e verificar a disponibilidade de vagas.",
+                    "Realizar a inscrição e confirmar o agendamento.",
+                    "Comparecer no local e data informados."
+                ]
+            },
+            {
+                "category": "Crescimento e Capacitação",
+                "title": "Agendar participação em palestras para empreendedores",
+                "description": "Permite que empreendedores se inscrevam para assistir a palestras com temas relevantes para o desenvolvimento de seus negócios, como inovação, mercado, finanças, entre outros.",
+                "documents": ["CPF", "RG"],
+                "requirements": ["Ser morador do município", "Ter interesse em temas relacionados ao empreendedorismo"],
+                "procedure": [
+                    "Comparecer à Sala do Empreendedor ou Secretaria de Desenvolvimento Econômico.",
+                    "Apresentar os documentos solicitados.",
+                    "Informar a palestra de interesse e verificar a disponibilidade de vagas.",
+                    "Realizar a inscrição e confirmar o agendamento.",
+                    "Comparecer no local e data informados."
+                ]
+            },
+            {
+                "category": "Crescimento e Capacitação",
+                "title": "Agendar participação em oficinas para empreendedores",
+                "description": "Permite que empreendedores se inscrevam em oficinas práticas para desenvolver uma habilidade específica, como 'criar um perfil comercial no Instagram' ou 'calcular o preço de venda de um produto'.",
+                "documents": ["CPF", "RG"],
+                "requirements": ["Ser morador do município", "Ter interesse em participar de oficinas voltadas ao empreendedorismo"],
+                "procedure": [
+                    "Comparecer à Sala do Empreendedor ou Secretaria de Desenvolvimento Econômico.",
+                    "Apresentar os documentos solicitados.",
+                    "Informar a oficina desejada e verificar a disponibilidade de vagas.",
+                    "Realizar a inscrição e confirmar o agendamento.",
+                    "Comparecer no local e data informados."
+                ]
+            },
+            {
+                "category": "Comunicação",
+                "title": "Cadastrar e-mail para receber publicações",
+                "description": "Permite que empreendedores cadastrem seu e-mail para receber informativos, notícias, dicas de gestão, convites para cursos e palestras e outras informações relevantes sobre empreendedorismo.",
+                "documents": ["CPF", "RG"],
+                "requirements": ["Ser morador do município", "Ter interesse em receber informações sobre empreendedorismo"],
+                "procedure": [
+                    "Comparecer à Sala do Empreendedor ou Secretaria de Desenvolvimento Econômico.",
+                    "Apresentar os documentos solicitados.",
+                    "Informar o e-mail para cadastro.",
+                    "Concluir o registro."
+                ]
+            },
+            {
+                "category": "Comunicação",
+                "title": "Cadastrar WhatsApp para receber publicações",
+                "description": "Permite que o empreendedor cadastre seu número de WhatsApp para receber, de forma rápida, informações sobre cursos, palestras, oportunidades de negócio e outras notícias importantes.",
+                "documents": ["CPF", "RG"],
+                "requirements": ["Ser morador do município", "Ter número de WhatsApp ativo", "Ter interesse em receber informações sobre empreendedorismo"],
+                "procedure": [
+                    "Comparecer à Sala do Empreendedor ou Secretaria de Desenvolvimento Econômico.",
+                    "Apresentar os documentos solicitados.",
+                    "Informar o número de WhatsApp.",
+                    "Concluir o cadastro."
+                ]
+            }
+        ];
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const servicesContainer = document.getElementById('services-container');
+            const categoryNav = document.getElementById('category-nav').querySelector('ul');
+            const searchInput = document.getElementById('search-input');
+
+            const categories = [...new Set(servicesData.map(service => service.category))];
+
+            function initNav() {
+                categories.sort().forEach(category => {
+                    const li = document.createElement('li');
+                    li.innerHTML = `<button data-category="${category}" class="sidebar-item w-full text-left p-3 rounded-lg font-medium text-[var(--text-light)] transition-colors duration-200 hover:bg-gray-300">${category}</button>`;
+                    categoryNav.appendChild(li);
+                });
+            }
+
+            function renderServices(filter = 'Todos', searchTerm = '') {
+                servicesContainer.innerHTML = '';
+                let filteredServices = servicesData;
+
+                if (filter !== 'Todos') {
+                    filteredServices = filteredServices.filter(service => service.category === filter);
+                }
+
+                if (searchTerm) {
+                    filteredServices = filteredServices.filter(service => 
+                        service.title.toLowerCase().includes(searchTerm.toLowerCase()) || 
+                        service.description.toLowerCase().includes(searchTerm.toLowerCase())
+                    );
+                }
+
+                if(filteredServices.length === 0) {
+                    servicesContainer.innerHTML = `<p class="text-center text-gray-500 col-span-full">Nenhum serviço encontrado.</p>`;
+                    return;
+                }
+                
+                filteredServices.forEach(service => {
+                    const card = document.createElement('div');
+                    card.className = 'service-card bg-white border border-[var(--border-color)] rounded-lg shadow-sm overflow-hidden';
+
+                    const documentsHTML = service.documents.length > 0 ? `
+                        <div class="mb-4">
+                            <h4 class="font-semibold text-md flex items-center"><span class="icon">📄</span>Documentos Necessários</h4>
+                            <ul class="list-disc list-inside mt-2 text-[var(--text-light)] pl-2 space-y-1">
+                                ${service.documents.map(doc => `<li>${doc}</li>`).join('')}
+                            </ul>
+                        </div>` : '';
+                    
+                    const requirementsHTML = service.requirements.length > 0 ? `
+                        <div class="mb-4">
+                            <h4 class="font-semibold text-md flex items-center"><span class="icon">✅</span>Requisitos</h4>
+                            <ul class="list-disc list-inside mt-2 text-[var(--text-light)] pl-2 space-y-1">
+                                ${service.requirements.map(req => `<li>${req}</li>`).join('')}
+                            </ul>
+                        </div>` : '';
+
+                    card.innerHTML = `
+                        <div class="service-card-header p-4 flex justify-between items-center">
+                            <h3 class="text-lg font-semibold text-[var(--text-dark)]">${service.title}</h3>
+                            <span class="transform transition-transform duration-300">▼</span>
+                        </div>
+                        <div class="service-card-details px-4">
+                            <p class="text-[var(--text-light)] mb-4">${service.description}</p>
+                            ${documentsHTML}
+                            ${requirementsHTML}
+                            <div>
+                                <h4 class="font-semibold text-md flex items-center"><span class="icon">➡️</span>Procedimento</h4>
+                                <ol class="list-decimal list-inside mt-2 text-[var(--text-light)] pl-2 space-y-1">
+                                    ${service.procedure.map(step => `<li>${step}</li>`).join('')}
+                                </ol>
+                            </div>
+                        </div>
+                    `;
+                    servicesContainer.appendChild(card);
+                });
+            }
+            
+            categoryNav.addEventListener('click', (e) => {
+                if(e.target.tagName === 'BUTTON'){
+                    const category = e.target.dataset.category;
+                    searchInput.value = '';
+                    renderServices(category);
+
+                    document.querySelectorAll('.sidebar-item').forEach(item => item.classList.remove('active'));
+                    e.target.classList.add('active');
+                }
+            });
+
+            searchInput.addEventListener('input', (e) => {
+                const searchTerm = e.target.value;
+                const activeCategory = document.querySelector('.sidebar-item.active').dataset.category;
+                renderServices(activeCategory, searchTerm);
+            });
+            
+            servicesContainer.addEventListener('click', (e) => {
+                const header = e.target.closest('.service-card-header');
+                if (header) {
+                    const details = header.nextElementSibling;
+                    const icon = header.querySelector('span');
+                    const isOpen = details.classList.contains('open');
+
+                    document.querySelectorAll('.service-card-details.open').forEach(openDetail => {
+                        if (openDetail !== details) {
+                             openDetail.classList.remove('open');
+                             openDetail.previousElementSibling.querySelector('span').style.transform = 'rotate(0deg)';
+                        }
+                    });
+
+                    details.classList.toggle('open');
+                    icon.style.transform = isOpen ? 'rotate(0deg)' : 'rotate(180deg)';
+                }
+            });
+
+            initNav();
+            renderServices();
+        });
+    </script>
+</body>
+</html>
